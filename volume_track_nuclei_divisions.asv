@@ -1,5 +1,8 @@
 
-function [] = volume_track_nuclei_Masha_divisions()
+function [] = volume_track_nuclei_divisions()
+% This is Masha's version of tracking, to run on early mouse embryos.
+% This 
+% Pre-registration is advised but not necessary
 
 % CPD SETUP
 addpath(genpath('/Users/mavdeeva/Desktop/Software/CPD2/core'));
