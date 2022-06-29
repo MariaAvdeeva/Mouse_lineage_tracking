@@ -9,10 +9,11 @@ function [] = volume_track_nuclei_divisions()
 % SETUP starts here.
 
 % CPD SETUP
-addpath(genpath('./Old_code/'));
 % Please add your paths to CPD2
 addpath(genpath('/Users/mavdeeva/Desktop/Software/CPD2/core'));
 addpath(genpath('/Users/mavdeeva/Desktop/Software/CPD2/data'));
+% Please do not move this line
+addpath(genpath('./Old_code/'));
 
 % LABELS SETUP
 % What is the prefix for the embryo names?
@@ -46,7 +47,7 @@ plot_all = false;
 % to consider overall
 which_number_vect = 1:100;
 % to use for tracking
-inds_to_track = 15:30;
+inds_to_track = 55:85;
 
 %-----END_OF_MAIN_SETUP-----
 
@@ -85,7 +86,7 @@ for time_index_index = inds_to_track
     %-----Start of Hayden's isotropic code-----
     
     % store this time indexes
-    time_index = valid_time_indices(time_index_index)
+    time_index = valid_time_indices(time_index_index);
     
     % store next in series
     time_index_plus_1 = valid_time_indices(time_index_index+1);
@@ -471,7 +472,7 @@ for time_index_index = inds_to_track
     nn(bad_matches(~isnan(nn_three(:,1))),1) = to_bad_matches(good_inds);
     nn(bad_matches(isnan(nn_three(:,1))),1) = NaN;
     %nn = nn_three(:,1);
-    nd=nd(:,1);
+    %nd=nd(:,1);
     disp('Final matching:')
     disp(nn(:,1));
     
@@ -512,7 +513,7 @@ for time_index_index = inds_to_track
             % make directed edges (in time) between matches + store iou for the match as a graph weight
             G_based_on_nn = addedge(G_based_on_nn, [num2str(time_index,'%05.3d'),'_', num2str(cell_labels_I_care_about1(nn(point_index)),'%05.3d')],...
                 [num2str(time_index_plus_1,'%05.3d'),'_', num2str(cell_labels_I_care_about2(point_index),'%05.3d')]);
-            dist = vecnorm(center_point_for_each_label1(nn(point_index)) - center_point_for_each_label2(point_index));
+            %dist = vecnorm(center_point_for_each_label1(nn(point_index)) - center_point_for_each_label2(point_index));
             %disp(dist);
             %if (dist>5)
             %    disp('Large distance detected')
