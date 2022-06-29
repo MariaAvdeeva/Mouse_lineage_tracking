@@ -1,22 +1,48 @@
 
-function [] = track_nuclei_based_on_CPD_Masha_divisions()
-% uses already tracked embryo that was easy that Masha gave to me
-% performs 'easy' registration
-% creates graph
-% shows some visualizations..
+function [] = volume_track_nuclei_Masha_divisions()
 
+% CPD SETUP
 addpath(genpath('/Users/mavdeeva/Desktop/Software/CPD2/core'));
 addpath(genpath('/Users/mavdeeva/Desktop/Software/CPD2/data'));
-%%
+addpath(genpath('./Old_code_from_Hayden/'));
 
-G_based_on_nn = graph;
+% LABELS SETUP
+% What is the prefix for the embryo names?
+name_of_embryo = '/Users/mavdeeva/Desktop/mouse/stack_1_210809/Stardist3D_Cam_Long_';
+% Suffix: yours is probably '.lux.tif'
+suffix_for_embryo = '.lux.tif';
+
+% REGISTRATION SETUP
+% Do we need to register the whole sample?
+to_register = false;
+% if registration is available, we can use it
+trans_path = './examples/stack_1/stack_1_transformsMatchGood1_125.mat';
+% frames that need to be re-registered
+register_again = [16];
+% define threshold for registration (if necessary)
 sigma_thres = 30;
-reg_avail = false;
-relative_volume = false;
+
+% TREE SETUP
+% if ground truth tree (for testing) is available, we can use it to clean labels
+tree_path = './examples/stack_1/stack_1_nuclear_from_Hayden_fixed.mat';
+% should we consider only labels present in ground truth tree above?
 clean_data = true;
+
+% DAUGHTER VOLUME THRESHOLD SETUP
 vol_thres = 1000;
-trans_path = '/Users/mavdeeva/Desktop/mouse/HaydensCode2022/stack_1_transformsMatchGood1_125.mat';
-tree_path = '/Users/mavdeeva/Desktop/mouse/HaydensCode2022/stack_1_nuclear_from_Hayden_fixed.mat';
+
+% PLOTTING SETUP
+plot_all = false;
+
+% IMAGE INDICES
+% to consider overall
+which_number_vect = 1:100;
+% to use for tracking
+inds_to_track = 15:16;
+
+%-----END_OF_MAIN_SETUP-----
+
+% ANISOTROPY INFO
 % Voxel size before making isotropic
 pixel_size_xy_um = 0.208; % um
 pixel_size_z_um = 2.0; % um
@@ -25,40 +51,23 @@ xyz_res = 0.8320;
 % Volume of isotropic voxel
 voxel_vol = xyz_res^3;
 
-% Which image indices to run over...
-which_number_vect = 1:100;
-
-
-% What is the prefix for the embryo names?
-%name_of_embryo = '/Users/hnunley/Desktop/test_for_maddy/OG_st0_NANOGGATA6_2105_better_model/Stardist3D_klbOut_Cam_Long_';
-%  stack 1 in 211018. 
-% from here: /mnt/home/mavdeeva/ceph/mouse/data/segmentation_out/211018. /stack1_channel_2_obj_left/nuclear
-%name_of_embryo = '/mnt/ceph/users/mavdeeva/mouse/data/segmentation_out/211018/stack_1_channel_2_obj_left/nuclear/Stardist3D_klbOut_Cam_Long_';
-%name_of_embryo = '/Users/lbrown/Documents/PosfaiLab/Registration/HaydensReg2022/211018_stack_1/Stardist3D_klbOut_Cam_Long_';
-%name_of_embryo = '/Users/mavdeeva/Desktop/mouse/HaydensCode2022/stack_5_211019/Stardist3D_klbOut_Cam_Long_';
-name_of_embryo = '/Users/mavdeeva/Desktop/mouse/HaydensCode2022/stack_1_210809/Stardist3D_Cam_Long_';
-
-
-% Suffix: yours is probably '.lux.tif'
-suffix_for_embryo = '.lux.tif';
-
 % Initialize empty graph and cell array for storing registration
+G_based_on_nn = graph;
 valid_time_indices = which_number_vect;
 store_registration = cell((length(valid_time_indices)-1), 1);
 sigma2_vect_saved = zeros((length(valid_time_indices)-1), 1);
-% also, check the alignment of this one with the time frame after
-%for time_index_index = 146:(length(valid_time_indices)-1)
-for time_index_index = 55:85
-    close all;
 
+for time_index_index = inds_to_track
+    if ~plot_all
+        close all;
+    end
 
-    if (time_index_index == 16)
-        reg_avail = false;
-    else
+    reg_avail = false;
+    if to_register & (~ismember(time_index_index, register_again))
         reg_avail = true;
     end
-     
-    % store this time indexs
+    
+    % store this time indexes
     time_index = valid_time_indices(time_index_index)
     
     % store next in series
