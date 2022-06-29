@@ -38,7 +38,7 @@ plot_all = false;
 % to consider overall
 which_number_vect = 1:100;
 % to use for tracking
-inds_to_track = 15:30;
+inds_to_track = 15:16;
 
 %-----END_OF_MAIN_SETUP-----
 
@@ -49,20 +49,20 @@ dist_thres = 0;
 %maximal distance between mother and daughters' centroid
 dist_cent_thres = 100;
 
-% ANISOTROPY INFO: OLD
+% ANISOTROPY INFO
 % Voxel size before making isotropic
-%pixel_size_xy_um = 0.208; % um
-%pixel_size_z_um = 2.0; % um
+pixel_size_xy_um = 0.208; % um
+pixel_size_z_um = 2.0; % um
 % Voxel size after making isotropic
-%xyz_res = 0.8320;
+xyz_res = 0.8320;
 % Volume of isotropic voxel
-%voxel_vol = xyz_res^3;
+voxel_vol = xyz_res^3;
 
 % Initialize empty graph and cell array for storing registration
 G_based_on_nn = graph;
 valid_time_indices = which_number_vect;
 store_registration = cell((length(valid_time_indices)-1), 1);
-%sigma2_vect_saved = zeros((length(valid_time_indices)-1), 1);
+sigma2_vect_saved = zeros((length(valid_time_indices)-1), 1);
 
 for time_index_index = inds_to_track
     if ~plot_all
@@ -70,7 +70,7 @@ for time_index_index = inds_to_track
     end
 
     reg_avail = false;
-    if (~to_register) && (~ismember(time_index_index, register_again))
+    if ~to_register & (~ismember(time_index_index, register_again))
         reg_avail = true;
     end
 
@@ -380,14 +380,12 @@ for time_index_index = inds_to_track
                 flag = 0;
                 from = dup(lvd).ind;
                 to = dup(lvd).val;
-                disp('To');
+          
                 disp(to);
                 to_cell = center1(to,:);
                 %disp(alpha1(to,:));
-                disp('To_volume');
                 to_volume = volumes1(cell_labels_I_care_about1(to_bad_matches(to)));
                 disp(to_volume);
-                disp('From');
                 disp(from);
                 daughter_flag = true;
                 for i=1:length(from)
@@ -424,7 +422,7 @@ for time_index_index = inds_to_track
                 %if not daughters resolve conflicts using second nearest
                 %neighbors
                 if (flag == 0) & (size(nn_three,2)>1)
-                    disp('Flag is zero, resolving conflicts');
+                    disp('Flag is zero');
                     disp(from);
                     disp(nn_three(from,2));
                     [ic,ia,ib]=intersect(nn_three(from,2),setdiff(1:size(nn_three,1),nn_three(:,1)));
@@ -462,10 +460,9 @@ for time_index_index = inds_to_track
     good_inds = nn_three(~isnan(nn_three(:,1)),1);
     nn(bad_matches(~isnan(nn_three(:,1))),1) = to_bad_matches(good_inds);
     nn(bad_matches(isnan(nn_three(:,1))),1) = NaN;
+    disp(nn);
     %nn = nn_three(:,1);
     nd=nd(:,1);
-    disp('Final matching:')
-    disp(nn(:,1));
     
     sample_graph = graph;
     for iind = 1:length(cell_labels_I_care_about1)
