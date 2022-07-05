@@ -41,13 +41,13 @@ clean_data = true;
 vol_thres = 1000;
 
 % PLOTTING SETUP
-plot_all = false;
+plot_all = true;
 
 % IMAGE INDICES
 % to consider overall
 which_number_vect = 1:100;
 % to use for tracking
-inds_to_track = 55:85;
+inds_to_track = 17:18;
 
 %-----END_OF_MAIN_SETUP-----
 
