@@ -13,13 +13,15 @@ function [] = volume_track_nuclei_divisions()
 addpath(genpath('/Users/mavdeeva/Desktop/Software/CPD2/core'));
 addpath(genpath('/Users/mavdeeva/Desktop/Software/CPD2/data'));
 % Please do not move this line
-addpath(genpath('./Old_code/'));
+addpath(genpath('./Old_code_Hayden/'));
 
 % LABELS SETUP
 % What is the prefix for the embryo names?
-name_of_embryo = '/Users/mavdeeva/Desktop/mouse/stack_1_210809/Stardist3D_Cam_Long_';
+name_of_embryo = '/Users/mavdeeva/Desktop/mouse/stack_1_210809/nuclei_labels/Stardist3D_Cam_Long_';
 % Suffix: yours is probably '.lux.tif'
 suffix_for_embryo = '.lux.tif';
+% Where to store the tree
+output_path = '/Users/mavdeeva/Desktop/mouse/stack_1_210809/';
 
 % REGISTRATION SETUP
 % Do we need to register the whole sample?
@@ -47,7 +49,7 @@ plot_all = true;
 % to consider overall
 which_number_vect = 1:100;
 % to use for tracking
-inds_to_track = 17:18;
+inds_to_track = 17:19;
 
 %-----END_OF_MAIN_SETUP-----
 
@@ -532,7 +534,7 @@ for time_index_index = inds_to_track
     figure;
     plot(G_based_on_nn, 'Layout', 'layered');    
     %openvar('G_based_on_nn.Edges')
-    %save('graph.mat','G_based_on_nn');
+    save(strcat(output_path, 'graph.mat'),'G_based_on_nn');
     disp('time index');
     disp(time_index);
     %pause;
@@ -540,10 +542,10 @@ for time_index_index = inds_to_track
 end
 
 % Save vector of transformations...
-save('transform_labels_pCloud.mat', 'store_registration');
+%save('transform_labels_pCloud.mat', 'store_registration');
 %save('matches.mat','store_matches');
-save('iou_table.mat','store_iou_table');
-save('graph.mat','G_based_on_nn');
+%save('iou_table.mat','store_iou_table');
+save(strcat(output_path, 'graph.mat'),'G_based_on_nn');
 
 
 end
