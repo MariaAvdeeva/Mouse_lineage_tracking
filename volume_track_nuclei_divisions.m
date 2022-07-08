@@ -20,6 +20,7 @@ addpath(genpath('./Old_code_Hayden/'));
 name_of_embryo = '/Users/mavdeeva/Desktop/mouse/stack_1_210809/nuclei_labels/Stardist3D_Cam_Long_';
 % Suffix: yours is probably '.lux.tif'
 suffix_for_embryo = '.lux.tif';
+%suffix_for_embryo = '.lux.klb';
 % Where to store the tree
 output_path = '/Users/mavdeeva/Desktop/mouse/stack_1_210809/';
 
@@ -49,7 +50,7 @@ plot_all = true;
 % to consider overall
 which_number_vect = 1:100;
 % to use for tracking
-inds_to_track = 17:19;
+inds_to_track = 15:30;
 
 %-----END_OF_MAIN_SETUP-----
 
@@ -94,13 +95,21 @@ for time_index_index = inds_to_track
     time_index_plus_1 = valid_time_indices(time_index_index+1);
     
     % store combined image for both.
-    A = imread([name_of_embryo,num2str(time_index,'%05.5d'),suffix_for_embryo],1);
-    tiff_info = imfinfo([name_of_embryo,num2str(time_index,'%05.5d'),suffix_for_embryo]);
-    % combine all tiff stacks into 1 3D image.
-    combined_image = zeros(size(A,1), size(A,2), size(tiff_info, 1));
-    for j = 1:size(tiff_info, 1)
-        A = imread([name_of_embryo,num2str(time_index,'%05.5d'),suffix_for_embryo],j);
-        combined_image(:,:,j) = A(:,:,1);
+    emb_name = [name_of_embryo,num2str(time_index,'%05.5d'),suffix_for_embryo];
+    if endsWith(suffix_for_embryo, 'klb')
+        combined_image = readKLBstack(emb_name);
+        combined_image = permute(combined_image, [2 1 3]);
+    elseif endsWith(suffix_for_embryo, 'tif')|endsWith(suffix_for_embryo, 'tif')
+        A = imread(emb_name,1);
+        tiff_info = imfinfo(emb_name);
+        % combine all tiff stacks into 1 3D image.
+        combined_image = zeros(size(A,1), size(A,2), size(tiff_info, 1));
+        for j = 1:size(tiff_info, 1)
+            A = imread(emb_name,j);
+            combined_image(:,:,j) = A(:,:,1);
+        end
+    else
+        error('Filename should end with tif, tiff or klb');
     end
     combined_image1 = combined_image;
   
@@ -109,13 +118,21 @@ for time_index_index = inds_to_track
     reduceRatio = 1/4;
     combined_image1 = isotropicSample_nearest(double(combined_image1), resXY, resZ, reduceRatio);
 
-    A = imread([name_of_embryo,num2str(time_index_plus_1,'%05.5d'),suffix_for_embryo],1);
-    tiff_info = imfinfo([name_of_embryo,num2str(time_index_plus_1,'%05.5d'),suffix_for_embryo]);
-    % combine all tiff stacks into 1 3D image.
-    combined_image = zeros(size(A,1), size(A,2), size(tiff_info, 1));
-    for j = 1:size(tiff_info, 1)
-        A = imread([name_of_embryo,num2str(time_index_plus_1,'%05.5d'),suffix_for_embryo],j);
-        combined_image(:,:,j) = A(:,:,1);
+    emb_name = [name_of_embryo,num2str(time_index_plus_1,'%05.5d'),suffix_for_embryo];
+    if endsWith(suffix_for_embryo, 'klb')
+        combined_image = readKLBstack(emb_name);
+        combined_image = permute(combined_image, [2 1 3]);
+    elseif endsWith(suffix_for_embryo, 'tif')|endsWith(suffix_for_embryo, 'tif')
+        A = imread(emb_name,1);
+        tiff_info = imfinfo(emb_name);
+        % combine all tiff stacks into 1 3D image.
+        combined_image = zeros(size(A,1), size(A,2), size(tiff_info, 1));
+        for j = 1:size(tiff_info, 1)
+            A = imread(emb_name,j);
+            combined_image(:,:,j) = A(:,:,1);
+        end
+    else
+        error('Filename should end with tif, tiff or klb');
     end
     combined_image2 = combined_image;
     
@@ -252,7 +269,7 @@ for time_index_index = inds_to_track
         R = Transform.Rotation;
         t = Transform.Translation;
         [M, D]=size(ptCloud2.Location);
-        Transform.Y=ptCloud2.Location*R'-repmat(t(1,:), [M,1]);
+        Transform.Y=(ptCloud2.Location-repmat(t(1,:), [M,1]))*R';
     end
     %sigma2_vect(which_rot) = sigma2;
     store_registration{time_index_index, 1} = Transform;
