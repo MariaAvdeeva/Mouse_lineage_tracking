@@ -72,6 +72,13 @@ while time_index_index <= lastTime
     if (nRerun == 0)  % only read the first time
         % store combined image for both.
         emb_name = [name_of_embryo,num2str(time_index,'%05.5d'),suffix_for_embryo];
+        if ~isfile(emb_name)
+            emb_name = [name_of_embryo,num2str(time_index,'%05.5d'), '_SegmentationCorrected', suffix_for_embryo];
+            if ~isfile(emb_name)
+                disp('file does not exist, passing to next iteration');
+                continue
+            end
+        end
         if endsWith(suffix_for_embryo, 'klb')
             combined_image = readKLBstack(emb_name);
             combined_image = permute(combined_image, [2 1 3]);
@@ -97,6 +104,13 @@ while time_index_index <= lastTime
         nNuclei = size(unique(combined_image1),1) - 1;
 
         emb_name = [name_of_embryo,num2str(time_index_plus_1,'%05.5d'),suffix_for_embryo];
+        if ~isfile(emb_name)
+            emb_name = [name_of_embryo,num2str(time_index_plus_1,'%05.5d'), '_SegmentationCorrected', suffix_for_embryo];
+            if ~isfile(emb_name)
+                disp('file does not exist, passing to next iteration');
+                continue
+            end
+        end
         if endsWith(suffix_for_embryo, 'klb')
             combined_image = readKLBstack(emb_name);
             combined_image = permute(combined_image, [2 1 3]);

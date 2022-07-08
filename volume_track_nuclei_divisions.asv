@@ -99,7 +99,7 @@ for time_index_index = inds_to_track
     if ~isfile(emb_name)
         emb_name = [name_of_embryo,num2str(time_index,'%05.5d'), '_SegmentationCorrected', suffix_for_embryo];
         if ~isfile(emb_name)
-            disp('file does not exist, passing to next iteration');
+            disp('file does not exist, passing to next iteration')
             continue
         end
     end
