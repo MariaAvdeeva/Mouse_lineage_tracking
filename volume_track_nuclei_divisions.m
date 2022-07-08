@@ -21,6 +21,7 @@ name_of_embryo = '/Users/mavdeeva/Desktop/mouse/stack_1_210809/nuclei_labels/Sta
 % Suffix: yours is probably '.lux.tif'
 %suffix_for_embryo = '.lux.tif';
 suffix_for_embryo = '.lux.klb';
+suffix_for_embryo_alt = '.lux_SegmentationCorrected.klb';
 % Where to store the tree
 output_path = '/Users/mavdeeva/Desktop/mouse/stack_1_210809/';
 
@@ -97,7 +98,7 @@ for time_index_index = inds_to_track
     % store combined image for both.
     emb_name = [name_of_embryo,num2str(time_index,'%05.5d'),suffix_for_embryo];
     if ~isfile(emb_name)
-        emb_name = [name_of_embryo,num2str(time_index,'%05.5d'), '_SegmentationCorrected', suffix_for_embryo];
+        emb_name = [name_of_embryo,num2str(time_index,'%05.5d'), suffix_for_embryo_alt];
         if ~isfile(emb_name)
             disp('file does not exist, passing to next iteration');
             continue
@@ -127,7 +128,7 @@ for time_index_index = inds_to_track
 
     emb_name = [name_of_embryo,num2str(time_index_plus_1,'%05.5d'),suffix_for_embryo];
     if ~isfile(emb_name)
-        emb_name = [name_of_embryo,num2str(time_index_plus_1,'%05.5d'), '_SegmentationCorrected', suffix_for_embryo];
+        emb_name = [name_of_embryo,num2str(time_index_plus_1,'%05.5d'), suffix_for_embryo_alt];
         if ~isfile(emb_name)
             disp('file does not exist, passing to next iteration');
             continue

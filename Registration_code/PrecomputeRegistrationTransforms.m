@@ -12,6 +12,7 @@ name_of_embryo =  'Stardist3D_Cam_Long_';
 name_of_embryo = strcat(data_path,name_of_embryo);
 %suffix_for_embryo = '.lux.tif';
 suffix_for_embryo = '.lux.klb';
+suffix_for_embryo_alt = '.lux_SegmentationCorrected.klb';
 
 addpath(genpath('/Users/mavdeeva/Desktop/Software/CPD2/core'));
 addpath(genpath('/Users/mavdeeva/Desktop/Software/CPD2/data'));
@@ -73,7 +74,7 @@ while time_index_index <= lastTime
         % store combined image for both.
         emb_name = [name_of_embryo,num2str(time_index,'%05.5d'),suffix_for_embryo];
         if ~isfile(emb_name)
-            emb_name = [name_of_embryo,num2str(time_index,'%05.5d'), '_SegmentationCorrected', suffix_for_embryo];
+            emb_name = [name_of_embryo,num2str(time_index,'%05.5d'), suffix_for_embryo_alt];
             if ~isfile(emb_name)
                 disp('file does not exist, passing to next iteration');
                 continue
@@ -105,7 +106,7 @@ while time_index_index <= lastTime
 
         emb_name = [name_of_embryo,num2str(time_index_plus_1,'%05.5d'),suffix_for_embryo];
         if ~isfile(emb_name)
-            emb_name = [name_of_embryo,num2str(time_index_plus_1,'%05.5d'), '_SegmentationCorrected', suffix_for_embryo];
+            emb_name = [name_of_embryo,num2str(time_index_plus_1,'%05.5d'), suffix_for_embryo_alt];
             if ~isfile(emb_name)
                 disp('file does not exist, passing to next iteration');
                 continue
