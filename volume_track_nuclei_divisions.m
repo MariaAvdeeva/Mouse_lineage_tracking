@@ -38,7 +38,7 @@ sigma_thres = 30;
 % if ground truth tree (for testing) is available, we can use it to clean labels
 tree_path = './examples/stack_1/stack_1_nuclear_from_Hayden_fixed.mat';
 % should we consider only labels present in ground truth tree above?
-clean_data = true;
+clean_data = false;
 
 % DAUGHTER VOLUME THRESHOLD SETUP
 vol_thres = 1000;
@@ -50,7 +50,7 @@ plot_all = true;
 % to consider overall
 which_number_vect = 1:100;
 % to use for tracking
-inds_to_track = 60:65;
+inds_to_track = 17:18;
 
 %-----END_OF_MAIN_SETUP-----
 

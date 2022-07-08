@@ -6,7 +6,6 @@ verbosemode = 1;  % show the plots of registration
 firstTime = 1; % should start with 1 not 0
 lastTime =  10; % last time for registration - you should have one more frame than this
 
-% that's also where the registration transforms will be stored
 data_path = '/Users/mavdeeva/Desktop/mouse/stack_1_210809/nuclei_labels/';
 name_of_embryo =  'Stardist3D_Cam_Long_';
 name_of_embryo = strcat(data_path,name_of_embryo);
@@ -21,6 +20,7 @@ nRerun = 0;
 poolsize = 8;
 
 time_str = strcat(string(firstTime),'_',string(lastTime));
+%
 RegistrationFileName = strcat(data_path,'transforms', time_str,'.mat');
  
 G_based_on_nn = graph;
