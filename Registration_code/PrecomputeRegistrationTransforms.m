@@ -75,7 +75,7 @@ while time_index_index <= lastTime
         if endsWith(suffix_for_embryo, 'klb')
             combined_image = readKLBstack(emb_name);
             combined_image = permute(combined_image, [2 1 3]);
-        elseif endsWith(suffix_for_embryo, 'tif')|endsWith(suffix_for_embryo, 'tif')
+        elseif endsWith(suffix_for_embryo, 'tif')|endsWith(suffix_for_embryo, 'tiff')
             A = imread(emb_name,1);
             tiff_info = imfinfo(emb_name);
             % combine all tiff stacks into 1 3D image.
@@ -100,7 +100,7 @@ while time_index_index <= lastTime
         if endsWith(suffix_for_embryo, 'klb')
             combined_image = readKLBstack(emb_name);
             combined_image = permute(combined_image, [2 1 3]);
-        elseif endsWith(suffix_for_embryo, 'tif')|endsWith(suffix_for_embryo, 'tif')
+        elseif endsWith(suffix_for_embryo, 'tif')|endsWith(suffix_for_embryo, 'tiff')
             A = imread(emb_name,1);
             tiff_info = imfinfo(emb_name);
             % combine all tiff stacks into 1 3D image.
