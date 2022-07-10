@@ -200,6 +200,9 @@ while time_index_index <= lastTime
             thetaHoldler = {};
             parfor whichrot = 1:gcp().NumWorkers
                 newRotation = RandomRotationMatrix(counter+whichrot);
+                if det(newRotation) ~= 1
+                    newRotation = eye(3,3);
+                end
                 ptCloud2Loc = ptCloud2.Location*newRotation;
                 % registering Y to X
                 [Transform,~, sigma2]=cpd_register(ptCloud1,ptCloud2Loc,opt);
