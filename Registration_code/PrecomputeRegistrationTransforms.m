@@ -143,7 +143,7 @@ while time_index_index <= lastTime
     if (nNuclei <= 20)  %% 50 for Jan22, 25 for Masha stack7
         fraction_of_selected_points =  1/10;  % slow to run at full scale - but make full res points and xform? (1/40 for frame 150 Jan22 seq)
         % how many random orientations do you want - minimum.
-        maxItr = 8;
+        maxItr = 30;
     else
         fraction_of_selected_points = 1/40;
         % how many random orientations do you want - minimum.
