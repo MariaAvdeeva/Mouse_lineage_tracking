@@ -2,16 +2,19 @@
 function [] = PrecomputeRegistrationTransforms(  )
 
 %% User Inputs
-verbosemode = 1;  % show the plots of registration
+verbosemode = 0;  % show the plots of registration
 firstTime = 1; % should start with 1 not 0
-lastTime =  10; % last time for registration - you should have one more frame than this
+lastTime =  98; % last time for registration - you should have one more frame than this
 
 % that's also where the registration transforms will be stored
-data_path = '/Users/mavdeeva/Desktop/mouse/stack_1_210809/nuclei_labels/';
-name_of_embryo =  'Stardist3D_Cam_Long_';
+%data_path = '/Users/mavdeeva/Desktop/mouse/stack_1_210809/nuclei_labels/klbs/';
+data_path = '/Users/mavdeeva/Desktop/mouse/stack_5_210809/nuclei_labels/Maddy_corrected/';
+%name_of_embryo =  'Stardist3D_Cam_Long_';
+name_of_embryo =  'klbOut_Cam_Long_';
 name_of_embryo = strcat(data_path,name_of_embryo);
 %suffix_for_embryo = '.lux.tif';
-suffix_for_embryo = '.lux.klb';
+%suffix_for_embryo = '.lux.klb';
+suffix_for_embryo = '.lux.label.klb';
 suffix_for_embryo_alt = '.lux_SegmentationCorrected.klb';
 
 addpath(genpath('/Users/mavdeeva/Desktop/Software/CPD2/core'));
@@ -143,11 +146,11 @@ while time_index_index <= lastTime
     if (nNuclei <= 20)  %% 50 for Jan22, 25 for Masha stack7
         fraction_of_selected_points =  1/10;  % slow to run at full scale - but make full res points and xform? (1/40 for frame 150 Jan22 seq)
         % how many random orientations do you want - minimum.
-        maxItr = 30;
+        maxItr = 200;
     else
         fraction_of_selected_points = 1/40;
         % how many random orientations do you want - minimum.
-        maxItr = 100;
+        maxItr = 200;
     end
 
     find1 = find(combined_image1(:)~=0);  % this is the indices into combined_image1 to get indices into (X,Y,Z) to the full set of point
@@ -179,7 +182,7 @@ while time_index_index <= lastTime
     tform = rigid3d(eye(3), [0,0,0]);
     
     % get 100 random numbers
-    for i=1:100
+    for i=1:200
         store_rand(i) = rand;
     end
   
@@ -200,9 +203,11 @@ while time_index_index <= lastTime
             thetaHoldler = {};
             parfor whichrot = 1:gcp().NumWorkers
                 newRotation = RandomRotationMatrix(counter+whichrot);
-                if det(newRotation) ~= 1
-                    newRotation = eye(3,3);
-                end
+                %disp(newRotation);
+%                 if det(newRotation) ~= 1
+%                     newRotation = eye(3,3);
+%                 end
+                %disp(newRotation);
                 ptCloud2Loc = ptCloud2.Location*newRotation;
                 % registering Y to X
                 [Transform,~, sigma2]=cpd_register(ptCloud1,ptCloud2Loc,opt);
@@ -212,7 +217,7 @@ while time_index_index <= lastTime
             end
 
             counter = counter + gcp().NumWorkers;%which_rot;
-            if counter > 99
+            if counter > 199
                 disp('did not find transformation with sigma2 < 10');
             end
             % get the best one we found this loop, 
@@ -422,7 +427,7 @@ while time_index_index <= lastTime
         nRerun = 0;
         time_index_index = time_index_index + 1;
     end
-    pause;
+    %pause;
     close all;
     disp(' ')
     toc
