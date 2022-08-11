@@ -14,8 +14,8 @@ name_of_embryo = strcat(data_path,name_of_embryo);
 suffix_for_embryo = '.lux.label.tif';
 suffix_for_embryo_alternative = '.lux_SegmentationCorrected.tif';
 
-addpath(genpath('./CPD2/core'));
-addpath(genpath('./CPD2/data'));
+addpath(genpath('../CPD2/core'));
+addpath(genpath('../CPD2/data'));
 
 time_str = strcat(string(firstTime),'_',string(lastTime));
 RegistrationFileName = strcat(data_path,'transforms', time_str,'.mat');
