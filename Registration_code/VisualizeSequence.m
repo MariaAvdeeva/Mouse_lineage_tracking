@@ -6,15 +6,16 @@
 function [] = VisualizeSequence(  )
 
 firstTime = 1;
-lastTime =  50;
+lastTime =  3;
 
-data_path = '/Users/lbrown/Documents/PosfaiLab/3DStardist/GataNanog/HaydenJan22Set/';
-name_of_embryo =  'Stardist3D_klbOut_Cam_Long_';
-suffix_for_embryo = '.tif';
+data_path = './test/tif/';
+name_of_embryo =  'klbOut_Cam_Long_';
 name_of_embryo = strcat(data_path,name_of_embryo);
+suffix_for_embryo = '.lux.label.tif';
+suffix_for_embryo_alternative = '.lux_SegmentationCorrected.tif';
 
-addpath(genpath('/Users/lbrown/Documents/PosfaiLab/Registration/HaydensReg2022/CPD2/core'));
-addpath(genpath('/Users/lbrown/Documents/PosfaiLab/Registration/HaydensReg2022/CPD2/data'));
+addpath(genpath('./CPD2/core'));
+addpath(genpath('./CPD2/data'));
 
 time_str = strcat(string(firstTime),'_',string(lastTime));
 RegistrationFileName = strcat(data_path,'transforms', time_str,'.mat');
@@ -64,41 +65,21 @@ zlim([-60,80]);
 for time_index_index = firstTime:lastTime-1
      
     % store this time index
-    time_index = valid_time_indices(time_index_index)
+    time_index = valid_time_indices(time_index_index);
     
     % store next in series
     time_index_plus_1 = valid_time_indices(time_index_index+1);
     
     % store combined image for both.
-    A = imread([name_of_embryo,num2str(time_index,'%05.5d'),suffix_for_embryo],1);
-    tiff_info = imfinfo([name_of_embryo,num2str(time_index,'%05.5d'),suffix_for_embryo]);
-    % combine all tiff stacks into 1 3D image.
-    combined_image = zeros(size(A,1), size(A,2), size(tiff_info, 1));
-    for j = 1:size(tiff_info, 1) % each slice
-        A = imread([name_of_embryo,num2str(time_index,'%05.5d'),suffix_for_embryo],j);
-        combined_image(:,:,j) = A(:,:,1);
-    end
-    combined_image1 = combined_image;
-  
-    resXY = 0.208;
-    resZ = 2.0;
-    reduceRatio = 1/4;
-    combined_image1 = isotropicSample_nearest(double(combined_image1), resXY, resZ, reduceRatio);
+    combined_image1 = read_embryo_frame(name_of_embryo, ...
+            suffix_for_embryo_alternative, ...
+            suffix_for_embryo, ...
+            time_index);
     
-    A = imread([name_of_embryo,num2str(time_index_plus_1,'%05.5d'),suffix_for_embryo],1);
-    tiff_info = imfinfo([name_of_embryo,num2str(time_index_plus_1,'%05.5d'),suffix_for_embryo]);
-    % combine all tiff stacks into 1 3D image.
-    combined_image = zeros(size(A,1), size(A,2), size(tiff_info, 1));
-    for j = 1:size(tiff_info, 1)
-        A = imread([name_of_embryo,num2str(time_index_plus_1,'%05.5d'),suffix_for_embryo],j);
-        combined_image(:,:,j) = A(:,:,1);
-    end
-    combined_image2 = combined_image;
-    
-    resXY = 0.208;
-    resZ = 2.0;
-    reduceRatio = 1/4;
-    combined_image2 = isotropicSample_nearest(double(combined_image2), resXY, resZ, reduceRatio);
+    combined_image2 = read_embryo_frame(name_of_embryo, ...
+            suffix_for_embryo_alternative, ...
+            suffix_for_embryo, ...
+            time_index_plus_1);
     
     % STORE MESHGRID
     [X, Y, Z] = meshgrid(1:size(combined_image1, 2), 1:size(combined_image1, 1), 1:size(combined_image1, 3));
@@ -115,7 +96,7 @@ for time_index_index = firstTime:lastTime-1
     meanX1 = transforms.store_registration{time_index,1}.Centroids1(1); 
     meanY1 = transforms.store_registration{time_index,1}.Centroids1(2); 
     meanZ1 = transforms.store_registration{time_index,1}.Centroids1(3);    
-    ptCloud1 = [X(find1), Y(find1), Z(find1)] - [meanX1, meanY1, meanZ1]
+    ptCloud1 = [X(find1), Y(find1), Z(find1)] - [meanX1, meanY1, meanZ1];
    
     [X, Y, Z] = meshgrid(1:size(combined_image2, 2), 1:size(combined_image2, 1), 1:size(combined_image2, 3));
 
@@ -170,11 +151,11 @@ for time_index_index = firstTime:lastTime-1
         end
     else
         labels = unique(combined_image1);
-        nNuclei = size(labels,1) - 1
+        nNuclei = size(labels,1) - 1;
         for ilabel=1:nNuclei
             ilabel = labels(ilabel);
             if (ilabel ~= 0)
-                ind = find(newX == ilabel)
+                ind = find(newX == ilabel);
             end
         end
         % get cdx2 val
@@ -200,10 +181,4 @@ close all;
 % close the video writer object
 close(writerObj);
 
-    
-
-
-    
-
-    
-
+end

@@ -4,21 +4,17 @@ function [] = PrecomputeRegistrationTransforms(  )
 %% User Inputs
 verbosemode = 0;  % show the plots of registration
 firstTime = 1; % should start with 1 not 0
-lastTime =  98; % last time for registration - you should have one more frame than this
+lastTime =  3; % last time for registration - you should have one more frame than this
 
 % that's also where the registration transforms will be stored
-%data_path = '/Users/mavdeeva/Desktop/mouse/stack_1_210809/nuclei_labels/klbs/';
-data_path = '/Users/mavdeeva/Desktop/mouse/stack_5_210809/nuclei_labels/Maddy_corrected/';
-%name_of_embryo =  'Stardist3D_Cam_Long_';
+data_path = './test/tif/';
 name_of_embryo =  'klbOut_Cam_Long_';
 name_of_embryo = strcat(data_path,name_of_embryo);
-%suffix_for_embryo = '.lux.tif';
-%suffix_for_embryo = '.lux.klb';
-suffix_for_embryo = '.lux.label.klb';
-suffix_for_embryo_alt = '.lux_SegmentationCorrected.klb';
+suffix_for_embryo = '.lux.label.tif';
+suffix_for_embryo_alternative = '.lux_SegmentationCorrected.tif';
 
-addpath(genpath('/Users/mavdeeva/Desktop/Software/CPD2/core'));
-addpath(genpath('/Users/mavdeeva/Desktop/Software/CPD2/data'));
+addpath(genpath('../CPD2/core'));
+addpath(genpath('../CPD2/data'));
 
 maxItr = 8;
 nRerun = 0;
@@ -26,6 +22,7 @@ poolsize = 8;
 
 time_str = strcat(string(firstTime),'_',string(lastTime));
 RegistrationFileName = strcat(data_path,'transforms', time_str,'.mat');
+RegistrationFileNameJSON = strcat(data_path,'transforms', time_str,'.json');
  
 G_based_on_nn = graph;
 % Voxel size before making isotropic
@@ -75,67 +72,16 @@ while time_index_index <= lastTime
 
     if (nRerun == 0)  % only read the first time
         % store combined image for both.
-        emb_name = [name_of_embryo,num2str(time_index,'%05.5d'),suffix_for_embryo];
-        if ~isfile(emb_name)
-            emb_name = [name_of_embryo,num2str(time_index,'%05.5d'), suffix_for_embryo_alt];
-            if ~isfile(emb_name)
-                disp('file does not exist, passing to next iteration');
-                continue
-            end
-        end
-        if endsWith(suffix_for_embryo, 'klb')
-            combined_image = readKLBstack(emb_name);
-            combined_image = permute(combined_image, [2 1 3]);
-        elseif endsWith(suffix_for_embryo, 'tif')|endsWith(suffix_for_embryo, 'tiff')
-            A = imread(emb_name,1);
-            tiff_info = imfinfo(emb_name);
-            % combine all tiff stacks into 1 3D image.
-            combined_image = zeros(size(A,1), size(A,2), size(tiff_info, 1));
-            for j = 1:size(tiff_info, 1)
-                A = imread(emb_name,j);
-                combined_image(:,:,j) = A(:,:,1);
-            end
-        else
-            error('Filename should end with tif, tiff or klb');
-        end
-        combined_image1 = combined_image;
-        
-      
-        resXY = 0.208;
-        resZ = 2.0;
-        reduceRatio = 1/4;
-        combined_image1 = isotropicSample_nearest(double(combined_image1), resXY, resZ, reduceRatio);
+        combined_image1 = read_embryo_frame(name_of_embryo, ...
+            suffix_for_embryo_alternative, ...
+            suffix_for_embryo, ...
+            time_index);
         nNuclei = size(unique(combined_image1),1) - 1;
-
-        emb_name = [name_of_embryo,num2str(time_index_plus_1,'%05.5d'),suffix_for_embryo];
-        if ~isfile(emb_name)
-            emb_name = [name_of_embryo,num2str(time_index_plus_1,'%05.5d'), suffix_for_embryo_alt];
-            if ~isfile(emb_name)
-                disp('file does not exist, passing to next iteration');
-                continue
-            end
-        end
-        if endsWith(suffix_for_embryo, 'klb')
-            combined_image = readKLBstack(emb_name);
-            combined_image = permute(combined_image, [2 1 3]);
-        elseif endsWith(suffix_for_embryo, 'tif')|endsWith(suffix_for_embryo, 'tiff')
-            A = imread(emb_name,1);
-            tiff_info = imfinfo(emb_name);
-            % combine all tiff stacks into 1 3D image.
-            combined_image = zeros(size(A,1), size(A,2), size(tiff_info, 1));
-            for j = 1:size(tiff_info, 1)
-                A = imread(emb_name,j);
-                combined_image(:,:,j) = A(:,:,1);
-            end
-        else
-            error('Filename should end with tif, tiff or klb');
-        end
-        combined_image2 = combined_image;
-
-        resXY = 0.208;
-        resZ = 2.0;
-        reduceRatio = 1/4;
-        combined_image2 = isotropicSample_nearest(double(combined_image2), resXY, resZ, reduceRatio);
+   
+        combined_image2 = read_embryo_frame(name_of_embryo, ...
+            suffix_for_embryo_alternative, ...
+            suffix_for_embryo, ...
+            time_index_plus_1);
     end
 
     % STORE MESHGRID
@@ -146,11 +92,11 @@ while time_index_index <= lastTime
     if (nNuclei <= 20)  %% 50 for Jan22, 25 for Masha stack7
         fraction_of_selected_points =  1/10;  % slow to run at full scale - but make full res points and xform? (1/40 for frame 150 Jan22 seq)
         % how many random orientations do you want - minimum.
-        maxItr = 200;
+        maxItr = 8;
     else
         fraction_of_selected_points = 1/40;
         % how many random orientations do you want - minimum.
-        maxItr = 200;
+        maxItr = 100;
     end
 
     find1 = find(combined_image1(:)~=0);  % this is the indices into combined_image1 to get indices into (X,Y,Z) to the full set of point
@@ -182,7 +128,7 @@ while time_index_index <= lastTime
     tform = rigid3d(eye(3), [0,0,0]);
     
     % get 100 random numbers
-    for i=1:200
+    for i=1:100
         store_rand(i) = rand;
     end
   
@@ -203,11 +149,6 @@ while time_index_index <= lastTime
             thetaHoldler = {};
             parfor whichrot = 1:gcp().NumWorkers
                 newRotation = RandomRotationMatrix(counter+whichrot);
-                %disp(newRotation);
-%                 if det(newRotation) ~= 1
-%                     newRotation = eye(3,3);
-%                 end
-                %disp(newRotation);
                 ptCloud2Loc = ptCloud2.Location*newRotation;
                 % registering Y to X
                 [Transform,~, sigma2]=cpd_register(ptCloud1,ptCloud2Loc,opt);
@@ -217,7 +158,7 @@ while time_index_index <= lastTime
             end
 
             counter = counter + gcp().NumWorkers;%which_rot;
-            if counter > 199
+            if counter > 99
                 disp('did not find transformation with sigma2 < 10');
             end
             % get the best one we found this loop, 
@@ -416,7 +357,7 @@ while time_index_index <= lastTime
             nucleus_pts = find(combined_image2(:)==second_smallest_id); 
             combined_image2(nucleus_pts) = 0;
         end % end of if bSmall
-        if nRerun < 1;
+        if nRerun < 1
             nRerun = nRerun + 1;
             disp('rerunning');
         else
@@ -435,6 +376,12 @@ end
 
 % Save vector of transformations...
 save(RegistrationFileName, 'store_registration');
+% output for python reading
+jH = jsonencode(store_registration);
+fid = fopen(RegistrationFileNameJSON,'w');
+fprintf(fid, jH);
+fclose(fid);
+
 % add time range in file name
 save(strcat(data_path,'matches',time_str,'.mat'),'store_matches');
 save(strcat(data_path,'iou_table',time_str,'.mat'),'store_iou_table');
